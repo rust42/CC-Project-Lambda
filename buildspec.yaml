@@ -6,4 +6,4 @@ phases:
       - echo Entering build phase
       - mvn clean package -f ./HelloWorldFunction
       - mv HelloWorldFunction/target/cc-project-lambda.jar .
-      - sam deploy --template-file template.yaml --stack-name CCLambda --capabilities CAPABILITY_IAM
+      - sam deploy --s3-bucket cc-lambda-s3-bucket --template-file template.yaml --stack-name CCLambda --capabilities CAPABILITY_IAM
