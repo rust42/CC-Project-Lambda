@@ -1,0 +1,10 @@
+version: 2.0
+
+phases:
+  build:
+    commands:
+      - echo Entering build phase
+      - mvn clean package -f ./HelloWorldFunction
+      - mv HelloWorldFunction/target/cc-project-lambda.jar .
+      - sam package
+      - sam deploy --stack-name CCLambda --capabilities CAPABALITY_IAM
