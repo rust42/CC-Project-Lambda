@@ -12,6 +12,21 @@ Globals:
     MemorySize: 512
 
 Resources:
+  BlogsGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      CacheClusterEnabled: true
+      MethodSettings:
+        - ResourcePath: /blogs
+          HttpMethod: GET
+      Domain:
+        DomainName: api.k6sandeep.com
+        CertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/6725ab5a-8f95-42a6-8e55-5cbc1d2ee570"
+        EndpointConfiguration: REGIONAL
+        Route53:
+          HostedZoneId: "Z05093165SS7MHO0JP43"
+
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -24,23 +39,25 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
+
       Events:
-        HelloWorld:
+        Blogs:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /blogs
             Method: get
+            RestApiId: !Ref BlogsGatewayApi
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
+  BlogsApi:
     Description: "API Gateway endpoint URL for Prod stage for Blogs function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/blogs/"
-  HelloWorldFunction:
+  BlogsFunction:
     Description: "Blogs Function ARN"
     Value: !GetAtt BlogsFunction.Arn
-  HelloWorldFunctionIamRole:
+  BlogsFunctionIamRole:
     Description: "Implicit IAM Role created for Blogs function"
     Value: !GetAtt BlogsFunction.Arn
