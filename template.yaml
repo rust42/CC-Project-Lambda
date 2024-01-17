@@ -31,10 +31,10 @@ Resources:
   BlogApiCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: blog.api.k6sandeep.com
+      DomainName: "*.api.k6sandeep.com"
       ValidationMethod: DNS
       SubjectAlternativeNames:
-        - "*.api.k6sandeep.com"
+        - "api.k6sandeep.com"
 
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
