@@ -26,7 +26,7 @@ Resources:
         CertificateArn: !Ref BlogApiCertificate
         EndpointConfiguration: REGIONAL
         Route53:
-          HostedZoneId: "Z05093165SS7MHO0JP43"
+          HostedZoneId: "Z05198722MYJM2T94ZPN3"
 
   BlogApiCertificate:
     Type: AWS::CertificateManager::Certificate
