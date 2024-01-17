@@ -55,7 +55,7 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   BlogsApi:
     Description: "API Gateway endpoint URL for Prod stage for Blogs function"
-    Value: !Sub "https://${BlogsGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/${prod}/"
+    Value: !Sub "https://${BlogsGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
   BlogsFunction:
     Description: "Blogs Function ARN"
     Value: !GetAtt BlogsFunction.Arn
