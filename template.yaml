@@ -16,7 +16,8 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: prod
-      CacheClusterEnabled: true
+      CacheClusterEnabled: false
+      CacheClusterSize: "0.5"
       MethodSettings:
         - ResourcePath: /blogs
           HttpMethod: GET
