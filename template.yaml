@@ -32,7 +32,7 @@ Resources:
     Type: AWS::CertificateManager::Certificate
     Properties:
       DomainName: "*.api.k6sandeep.com"
-      ValidationMethod: DNS
+      ValidationMethod: EMAIL
       SubjectAlternativeNames:
         - "api.k6sandeep.com"
 
