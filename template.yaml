@@ -23,10 +23,16 @@ Resources:
           HttpMethod: GET
       Domain:
         DomainName: blog.api.k6sandeep.com
-        CertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/148bb023-8cd1-4fb8-b925-72bd0d32a7d6"
+        CertificateArn: !Ref BlogApiCertificate
         EndpointConfiguration: REGIONAL
         Route53:
           HostedZoneId: "Z05093165SS7MHO0JP43"
+
+  BlogApiCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: blog.api.k6sandeep.com
+      ValidationMethod: DNS
 
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
