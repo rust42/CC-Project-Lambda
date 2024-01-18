@@ -44,6 +44,12 @@ Resources:
 #      SubjectAlternativeNames:
 #        - "api.k6sandeep.com"
 
+  BlogsJSONBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "blogs-posts-json"
+
+
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -56,6 +62,14 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           PARAM1: VALUE
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectACL
+              Resource: !GetAtt BlogsJSONBucket.Arn
 
       Events:
         Blogs:
