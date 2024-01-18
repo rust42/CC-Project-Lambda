@@ -18,13 +18,26 @@ Resources:
       StageName: prod
       CacheClusterEnabled: false
       CacheClusterSize: "0.5"
+      Cors:
+        AllowMethods: "'POST, GET'"
+        AllowHeaders:
+          - Content-Type
+          - X-Amz-Date
+          - Authorization
+          - X-Api-Key
+          - X-Amz-Security-Token
+          - X-Amz-User-Agent
+        AllowOrigin: "*"
+        MaxAge: "'600'"
+        AllowCredentials: false
+
       MethodSettings:
         - ResourcePath: /
           HttpMethod: GET
-#      Domain:
-#        DomainName: blog.api.k6sandeep.com
-#        CertificateArn: !Ref BlogApiCertificate
-#        EndpointConfiguration: REGIONAL
+      Domain:
+        DomainName: blog.api.k6sandeep.com
+        CertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
+        EndpointConfiguration: REGIONAL
 #        Route53:
 #          HostedZoneId: "Z05198722MYJM2T94ZPN3"
 
