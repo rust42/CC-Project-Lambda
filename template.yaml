@@ -39,7 +39,6 @@ Resources:
       MethodSettings:
         - ResourcePath: /
           HttpMethod: GET
-      Domain: !Ref BlogsFunctionDomain
 
 
 
@@ -91,10 +90,13 @@ Resources:
             RestApiId: !Ref BlogsGatewayApi
   BasePath:
     Type: AWS::ApiGateway::BasePathMapping
+    DependsOn:
+      - BlogsGatewayApi
+      - BlogsFunctionDomain
     Properties:
       BasePath: ""
       DomainName: !Ref BlogsFunctionDomain
-      RestApiId: !Ref BlogsGatewayApi
+      RestApiId: !GetAtt BlogsGatewayApi.RootResourceId
       Stage: prod
 
   WebsiteDNSName:
@@ -105,7 +107,7 @@ Resources:
         - Name: "blog.api.k6sandeep.com"
           Type: A
           AliasTarget:
-            DNSName: "blog.api.k6sandeep.com"
+            DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
             HostedZoneId: !GetAtt BlogsFunctionDomain.DistributionHostedZoneId
 #            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
