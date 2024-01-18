@@ -21,20 +21,20 @@ Resources:
       MethodSettings:
         - ResourcePath: /
           HttpMethod: GET
-      Domain:
-        DomainName: blog.api.k6sandeep.com
-        CertificateArn: !Ref BlogApiCertificate
-        EndpointConfiguration: REGIONAL
-        Route53:
-          HostedZoneId: "Z05198722MYJM2T94ZPN3"
+#      Domain:
+#        DomainName: blog.api.k6sandeep.com
+#        CertificateArn: !Ref BlogApiCertificate
+#        EndpointConfiguration: REGIONAL
+#        Route53:
+#          HostedZoneId: "Z05198722MYJM2T94ZPN3"
 
-  BlogApiCertificate:
-    Type: AWS::CertificateManager::Certificate
-    Properties:
-      DomainName: "*.api.k6sandeep.com"
-      ValidationMethod: EMAIL
-      SubjectAlternativeNames:
-        - "api.k6sandeep.com"
+#  BlogApiCertificate:
+#    Type: AWS::CertificateManager::Certificate
+#    Properties:
+#      DomainName: "*.api.k6sandeep.com"
+#      ValidationMethod: DNS
+#      SubjectAlternativeNames:
+#        - "api.k6sandeep.com"
 
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
