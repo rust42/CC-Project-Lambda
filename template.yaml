@@ -12,6 +12,17 @@ Globals:
     MemorySize: 512
 
 Resources:
+  BlogsFunctionDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: blog.api.k6sandeep.com
+      CertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
+      EndpointConfiguration:
+        Types:
+          - TLS_1_2
+      SecurityPolicy: TLS_1_2
+      RegionalCertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
+
   BlogsGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -28,10 +39,10 @@ Resources:
       MethodSettings:
         - ResourcePath: /
           HttpMethod: GET
-      Domain:
-        DomainName: blog.api.k6sandeep.com
-        CertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
-        EndpointConfiguration: REGIONAL
+      Domain: !Ref BlogsFunctionDomain
+
+
+
 
   #        Route53:
 #          HostedZoneId: "Z05198722MYJM2T94ZPN3"
@@ -78,6 +89,25 @@ Resources:
             Path: /
             Method: GET
             RestApiId: !Ref BlogsGatewayApi
+  BasePath:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: ""
+      DomainName: !Ref BlogsFunctionDomain
+      RestApiId: !Ref BlogsGatewayApi
+      Stage: prod
+
+  WebsiteDNSName:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: "Z05093165SS7MHO0JP43"
+      RecordSets:
+        - Name: "blog.api.k6sandeep.com"
+          Type: A
+          AliasTarget:
+            DNSName: "blog.api.k6sandeep.com"
+            HostedZoneId: !GetAtt BlogsFunctionDomain.DistributionHostedZoneId
+#            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
