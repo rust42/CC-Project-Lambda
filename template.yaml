@@ -19,7 +19,7 @@ Resources:
       CertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
       EndpointConfiguration:
         Types:
-          - TLS_1_2
+          - REGIONAL
       SecurityPolicy: TLS_1_2
       RegionalCertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
 
