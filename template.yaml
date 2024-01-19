@@ -101,7 +101,7 @@ Resources:
           Type: A
           AliasTarget:
             DNSName: !GetAtt BlogsFunctionDomain.RegionalDomainName # Assuming you use Regional Domain Name
-            HostedZoneId: Z2FDTNDATAQYW2
+            HostedZoneId: Z1UJRXOUMOOFQ8
 ##            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
