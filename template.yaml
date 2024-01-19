@@ -34,7 +34,6 @@ Resources:
         AllowOrigin: "'*'"
         MaxAge: "'600'"
         AllowCredentials: false
-      Domain:
       MethodSettings:
         - ResourcePath: /
           HttpMethod: GET
