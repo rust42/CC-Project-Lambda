@@ -69,13 +69,8 @@ Resources:
         Variables:
           PARAM1: VALUE
       Policies:
-        - Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Action:
-                - s3:GetObject
-                - s3:GetObjectACL
-              Resource: !GetAtt BlogsJSONBucket.Arn
+        - S3ReadPolicies:
+          BucketName: !Ref BlogsJSONBucket
 
       Events:
         Blogs:
