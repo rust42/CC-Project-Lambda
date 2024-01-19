@@ -95,7 +95,7 @@ Resources:
   WebsiteDNSName:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneId: "Z05198722MYJM2T94ZPN3"
+      HostedZoneId: "Z05093165SS7MHO0JP43"
       RecordSets:
         - Name: "blog.api.k6sandeep.com."
           Type: A
