@@ -69,8 +69,15 @@ Resources:
         Variables:
           PARAM1: VALUE
       Policies:
-        - S3ReadPolicies:
-          BucketName: !Ref BlogsJSONBucket
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Action:
+                - "s3:GetObject"
+                - "s3:ListBucket"
+              Resource:
+                - !Sub "arn:aws:s3:::${BlogsJSONBucket}"
+                - !Sub "arn:aws:s3:::${BlogsJSONBucket}/*"
 
       Events:
         Blogs:
