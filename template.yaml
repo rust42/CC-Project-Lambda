@@ -39,12 +39,6 @@ Resources:
         - ResourcePath: /
           HttpMethod: GET
 
-
-  Route53HostedZone:
-    Type: AWS::Route53::HostedZone
-    Properties:
-      Name: k6sandeep.com
-
   #        Route53:
 #          HostedZoneId: "Z05198722MYJM2T94ZPN3"
 
@@ -101,7 +95,7 @@ Resources:
   WebsiteDNSName:
     Type: AWS::Route53::RecordSetGroup
     Properties:
-      HostedZoneId: !Ref Route53HostedZone
+      HostedZoneId: "Z05198722MYJM2T94ZPN3"
       RecordSets:
         - Name: "blog.api.k6sandeep.com."
           Type: A
