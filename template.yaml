@@ -106,7 +106,7 @@ Resources:
           Type: A
           AliasTarget:
             DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
-            HostedZoneId: !GetAtt BlogsFunctionDomain.DistributionHostedZoneId
+            HostedZoneId: Z2FDTNDATAQYW2
 #            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
