@@ -95,7 +95,7 @@ Resources:
     Properties:
       BasePath: ""
       DomainName: !Ref BlogsFunctionDomain
-      RestApiId: !GetAtt BlogsGatewayApi.RootResourceId
+      RestApiId: !Ref BlogsGatewayApi
       Stage: prod
 
   WebsiteDNSName:
