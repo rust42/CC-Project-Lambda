@@ -100,11 +100,10 @@ Resources:
 #
   WebsiteDNSName:
     Type: AWS::Route53::RecordSetGroup
-    DependsOn:
     Properties:
       HostedZoneId: !Ref Route53HostedZone
       RecordSets:
-        - Name: !Sub "blog.api.k6sandeep.com."
+        - Name: "blog.api.k6sandeep.com."
           Type: A
           AliasTarget:
             DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
