@@ -40,7 +40,10 @@ Resources:
           HttpMethod: GET
 
 
-
+  Route53HostedZone:
+    Type: AWS::Route53::HostedZone
+    Properties:
+      Name: k6sandeep.com
 
   #        Route53:
 #          HostedZoneId: "Z05198722MYJM2T94ZPN3"
@@ -95,18 +98,17 @@ Resources:
       RestApiId: !Ref BlogsGatewayApi
       Stage: !Ref BlogsGatewayApi.Stage
 #
-#  WebsiteDNSName:
-#    Type: AWS::Route53::RecordSetGroup
-#    DependsOn:
-#      - BasePath
-#    Properties:
-#      HostedZoneId: "Z05093165SS7MHO0JP43"
-#      RecordSets:
-#        - Name: "blog.api.k6sandeep.com"
-#          Type: A
-#          AliasTarget:
-#            DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
-#            HostedZoneId: !GetAtt BlogsFunctionDomain.DistributionHostedZoneId
+  WebsiteDNSName:
+    Type: AWS::Route53::RecordSetGroup
+    DependsOn:
+    Properties:
+      HostedZoneId: !Ref Route53HostedZone
+      RecordSets:
+        - Name: !Sub "blog.api.k6sandeep.com."
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
+            HostedZoneId: !GetAtt BlogsFunctionDomain.DistributionHostedZoneId
 ##            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
