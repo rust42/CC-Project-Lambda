@@ -100,8 +100,8 @@ Resources:
         - Name: "blog.api.k6sandeep.com."
           Type: A
           AliasTarget:
-            DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
-            HostedZoneId: !GetAtt BlogsFunctionDomain.DistributionHostedZoneId
+            DNSName: !GetAtt BlogsFunctionDomain.RegionalDomainName # Assuming you use Regional Domain Name
+            HostedZoneId: Z2FDTNDATAQYW2
 ##            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
