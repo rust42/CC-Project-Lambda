@@ -89,19 +89,15 @@ Resources:
             RestApiId: !Ref BlogsGatewayApi
   BasePath:
     Type: AWS::ApiGateway::BasePathMapping
-    DependsOn:
-      - BlogsGatewayApi
-      - BlogsFunctionDomain
     Properties:
       BasePath: ""
       DomainName: !Ref BlogsFunctionDomain
       RestApiId: !Ref BlogsGatewayApi
-      Stage: prod
+      Stage: !Ref BlogsGatewayApi.Stage
 
   WebsiteDNSName:
     Type: AWS::Route53::RecordSetGroup
     DependsOn:
-      - BlogsFunctionDomain
       - BasePath
     Properties:
       HostedZoneId: "Z05093165SS7MHO0JP43"
