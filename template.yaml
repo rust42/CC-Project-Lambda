@@ -94,20 +94,20 @@ Resources:
       DomainName: !Ref BlogsFunctionDomain
       RestApiId: !Ref BlogsGatewayApi
       Stage: !Ref BlogsGatewayApi.Stage
-
-  WebsiteDNSName:
-    Type: AWS::Route53::RecordSetGroup
-    DependsOn:
-      - BasePath
-    Properties:
-      HostedZoneId: "Z05093165SS7MHO0JP43"
-      RecordSets:
-        - Name: "blog.api.k6sandeep.com"
-          Type: A
-          AliasTarget:
-            DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
-            HostedZoneId: Z2FDTNDATAQYW2
-#            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
+#
+#  WebsiteDNSName:
+#    Type: AWS::Route53::RecordSetGroup
+#    DependsOn:
+#      - BasePath
+#    Properties:
+#      HostedZoneId: "Z05093165SS7MHO0JP43"
+#      RecordSets:
+#        - Name: "blog.api.k6sandeep.com"
+#          Type: A
+#          AliasTarget:
+#            DNSName: !GetAtt BlogsFunctionDomain.DistributionDomainName
+#            HostedZoneId: !GetAtt BlogsFunctionDomain.DistributionHostedZoneId
+##            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
