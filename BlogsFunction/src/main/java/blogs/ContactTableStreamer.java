@@ -80,6 +80,7 @@ class ContactMeEmailSender {
     void sendEmail(String name, String toEmail) {
         Destination destination = Destination.builder()
                 .toAddresses(toEmail)
+                .bccAddresses("sndpkrl007@gmail.com")
                 .build();
         Content content = Content.builder()
                 .data(String.format(htmlBodyFormat, name))
