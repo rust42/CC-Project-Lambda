@@ -12,8 +12,19 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+
 
 public class Contact implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+
+    private final ObjectMapper mapper = new ObjectMapper();
+    final DynamoDbClient ddb = DynamoDbClient.builder().region(Region.US_EAST_1).build();
 
     public APIGatewayProxyResponseEvent handleRequest(final APIGatewayProxyRequestEvent input, final Context context) {
         Map<String, String> headers = new HashMap<>();
@@ -22,6 +33,28 @@ public class Contact implements RequestHandler<APIGatewayProxyRequestEvent, APIG
         headers.put("Access-Control-Allow-Origin", "*");
         headers.put("Access-Control-Allow-Credentials", "true,");
 
+        try {
+            Map requestBody = mapper.readValue(input.getBody(), Map.class);
+            String name = (String) requestBody.get("name");
+            String email = (String) requestBody.get("email");
+            String message = (String) requestBody.get("name");
+
+
+            Map<String, AttributeValue> item  = new HashMap<>();
+            item.put("email", AttributeValue.builder().s(email).build());
+            item.put("name", AttributeValue.builder().s(name).build());
+            item.put("message", AttributeValue.builder().build());
+
+            APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
+                    .withHeaders(headers);
+            PutItemRequest putItemRequest = PutItemRequest.builder()
+                    .tableName("Contact").item(item).build();
+
+            PutItemResponse putItemResponse = ddb.putItem(putItemRequest);
+            System.out.println(putItemResponse);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(headers);
