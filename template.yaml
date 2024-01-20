@@ -55,8 +55,32 @@ Resources:
         - ResourcePath: /
           HttpMethod: POST
 
+  ContactTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Contact
+      AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: S
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: email
+            AttributeType: S
+          - AttributeName: message
+            AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      ProvisionedThroughput:
+        ReadCapacityUnits: 0
+        WriteCapacityUnits: 0
 
-  #        Route53:
+
+
+
+
+      #        Route53:
 #          HostedZoneId: "Z05198722MYJM2T94ZPN3"
 
 #  BlogApiCertificate:
@@ -94,6 +118,10 @@ Resources:
       CodeUri: ./cc-project-lambda.jar
       Handler: blogs.Contact::handleRequest
       Runtime: java17
+      Policies:
+        - DynamoDBCrudPolicy:
+          TableName: !Ref ContactTable
+
       Architectures:
         - x86_64
       MemorySize: 512
