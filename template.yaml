@@ -12,7 +12,7 @@ Globals:
     MemorySize: 512
 
 Resources:
-  BlogsFunctionDomain:
+  AllBlogApiDomain:
     Type: AWS::ApiGateway::DomainName
     Properties:
       DomainName: blog.api.k6sandeep.com
@@ -109,19 +109,19 @@ Resources:
             Method: POST
             RestApiId: !Ref ContactGatewayApi
 
-  BasePath:
+  BlogApiBasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
       BasePath: "blog"
-      DomainName: !Ref BlogsFunctionDomain
+      DomainName: !Ref AllBlogApiDomain
       RestApiId: !Ref BlogsGatewayApi
       Stage: !Ref BlogsGatewayApi.Stage
 
-  ContactBasePath:
+  ContactApiBasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
       BasePath: "contact"
-      DomainName: !Ref BlogsFunctionDomain
+      DomainName: !Ref AllBlogApiDomain
       RestApiId: !Ref ContactGatewayApi
       Stage: !Ref ContactGatewayApi.Stage
 
@@ -134,7 +134,7 @@ Resources:
         - Name: "blog.api.k6sandeep.com."
           Type: A
           AliasTarget:
-            DNSName: !GetAtt BlogsFunctionDomain.RegionalDomainName # Assuming you use Regional Domain Name
+            DNSName: !GetAtt AllBlogApiDomain.RegionalDomainName # Assuming you use Regional Domain Name
             HostedZoneId: Z1UJRXOUMOOFQ8
 ##            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
