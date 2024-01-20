@@ -146,7 +146,7 @@ Resources:
       CodeUri: ./cc-project-lambda.jar
       Handler: blogs.ContactTableStreamer::handleRequest
       Policies:
-        - AWSLambdaDynamoDBExecutionRole:
+        - DynamoDBCrudPolicy:
           TableName: !Ref ContactTable
 
       Architectures:
