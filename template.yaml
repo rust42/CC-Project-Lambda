@@ -99,7 +99,7 @@ Resources:
       Handler: blogs.Contact::handleRequest
       Runtime: java17
       Policies:
-        - DynamoDBReadPolicy:
+        - DynamoDBCrudPolicy:
             TableName: !Ref ContactTable
 
       Architectures:
