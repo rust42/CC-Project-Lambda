@@ -39,6 +39,23 @@ Resources:
         - ResourcePath: /
           HttpMethod: GET
 
+  ContactGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      CacheClusterEnabled: false
+      CacheClusterSize: "0.5"
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: POST
+
+
   #        Route53:
 #          HostedZoneId: "Z05198722MYJM2T94ZPN3"
 
@@ -49,12 +66,6 @@ Resources:
 #      ValidationMethod: DNS
 #      SubjectAlternativeNames:
 #        - "api.k6sandeep.com"
-
-  BlogsJSONBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: "blogs-posts-json"
-
 
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -86,6 +97,28 @@ Resources:
             Path: /
             Method: GET
             RestApiId: !Ref BlogsGatewayApi
+
+  ContactPostApi:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./cc-project-lambda.jar
+      Handler: blogs.Contact::handleRequest
+      Runtime: java17
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+
+      Events:
+        Blogs:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId: !Ref ContactGatewayApi
+
   BasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
@@ -93,7 +126,16 @@ Resources:
       DomainName: !Ref BlogsFunctionDomain
       RestApiId: !Ref BlogsGatewayApi
       Stage: !Ref BlogsGatewayApi.Stage
-#
+
+  ContactBasePath:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: "/contact"
+      DomainName: !Ref BlogsFunctionDomain
+      RestApiId: !Ref ContactGatewayApi
+      Stage: !Ref ContactGatewayApi.Stage
+
+  #
   WebsiteDNSName:
     Type: AWS::Route53::RecordSetGroup
     Properties:
