@@ -42,6 +42,7 @@ public class Contact implements RequestHandler<APIGatewayProxyRequestEvent, APIG
 
             Map<String, AttributeValue> item  = new HashMap<>();
             item.put("email", AttributeValue.builder().s(email).build());
+            item.put("ID", AttributeValue.builder().s(email).build());
             item.put("name", AttributeValue.builder().s(name).build());
             item.put("message", AttributeValue.builder().build());
 
