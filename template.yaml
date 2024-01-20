@@ -72,6 +72,8 @@ Resources:
         - AttributeName: ID
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
       ProvisionedThroughput:
         ReadCapacityUnits: 0
         WriteCapacityUnits: 0
@@ -136,6 +138,31 @@ Resources:
             Path: /
             Method: POST
             RestApiId: !Ref ContactGatewayApi
+
+  ContactDynamoDBStreamer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: java17
+      CodeUri: ./cc-project-lambda.jar
+      Handler: blogs.ContactTableStreamer::handleRequest
+      Policies:
+        - AWSLambdaDynamoDBExecutionRole:
+          TableName: !Ref ContactTable
+
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt ContactTable.StreamArn
+            BatchSize: 10
+            StartingPosition: LATEST
 
   BlogApiBasePath:
     Type: AWS::ApiGateway::BasePathMapping
