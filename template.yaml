@@ -159,7 +159,7 @@ Resources:
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
-      EmailIdentity: "admin.k6sandeep.com"
+      EmailIdentity: "k6sandeep.com"
       DkimAttributes:
         SigningEnabled: true
 
