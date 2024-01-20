@@ -147,15 +147,13 @@ Resources:
       Handler: blogs.ContactTableStreamer::handleRequest
       Policies:
         - DynamoDBCrudPolicy:
-          TableName: !Ref ContactTable
-
+            TableName: !Ref ContactTable
       Architectures:
         - x86_64
       MemorySize: 512
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+      Environment:
         Variables:
           PARAM1: VALUE
-
       Events:
         Stream:
           Type: DynamoDB
