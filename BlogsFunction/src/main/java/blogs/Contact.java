@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.amazonaws.services.lambda.runtime.Context;
@@ -39,10 +40,11 @@ public class Contact implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             String email = (String) requestBody.get("email");
             String message = (String) requestBody.get("name");
 
+            UUID uuid = UUID.randomUUID();
 
             Map<String, AttributeValue> item  = new HashMap<>();
             item.put("email", AttributeValue.builder().s(email).build());
-            item.put("ID", AttributeValue.builder().s(email).build());
+            item.put("ID", AttributeValue.builder().s(uuid.toString()).build());
             item.put("name", AttributeValue.builder().s(name).build());
             item.put("message", AttributeValue.builder().s(message).build());
 
