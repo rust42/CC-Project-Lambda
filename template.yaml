@@ -112,7 +112,7 @@ Resources:
   BasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: ""
+      BasePath: "blog"
       DomainName: !Ref BlogsFunctionDomain
       RestApiId: !Ref BlogsGatewayApi
       Stage: !Ref BlogsGatewayApi.Stage
@@ -120,7 +120,7 @@ Resources:
   ContactBasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: "/contact"
+      BasePath: "contact"
       DomainName: !Ref BlogsFunctionDomain
       RestApiId: !Ref ContactGatewayApi
       Stage: !Ref ContactGatewayApi.Stage
