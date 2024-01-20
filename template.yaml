@@ -56,42 +56,13 @@ Resources:
           HttpMethod: POST
 
   ContactTable:
-    Type: AWS::DynamoDB::Table
+    Type: AWS::Serverless::SimpleTable
     Properties:
       TableName: Contact
-      AttributeDefinitions:
-          - AttributeName: ID
-            AttributeType: S
-          - AttributeName: name
-            AttributeType: S
-          - AttributeName: email
-            AttributeType: S
-          - AttributeName: message
-            AttributeType: S
-      KeySchema:
-        - AttributeName: ID
-          KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
-      StreamSpecification:
-        StreamViewType: NEW_IMAGE
       ProvisionedThroughput:
         ReadCapacityUnits: 0
         WriteCapacityUnits: 0
 
-
-
-
-
-      #        Route53:
-#          HostedZoneId: "Z05198722MYJM2T94ZPN3"
-
-#  BlogApiCertificate:
-#    Type: AWS::CertificateManager::Certificate
-#    Properties:
-#      DomainName: "*.api.k6sandeep.com"
-#      ValidationMethod: DNS
-#      SubjectAlternativeNames:
-#        - "api.k6sandeep.com"
 
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -121,8 +92,8 @@ Resources:
       Handler: blogs.Contact::handleRequest
       Runtime: java17
       Policies:
-        - DynamoDBCrudPolicy:
-          TableName: !Ref ContactTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref ContactTable
 
       Architectures:
         - x86_64
@@ -146,7 +117,7 @@ Resources:
       CodeUri: ./cc-project-lambda.jar
       Handler: blogs.ContactTableStreamer::handleRequest
       Policies:
-        - DynamoDBCrudPolicy:
+        - DynamoDBReadPolicy:
             TableName: !Ref ContactTable
       Architectures:
         - x86_64
