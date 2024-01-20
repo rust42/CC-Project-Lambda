@@ -62,12 +62,6 @@ Resources:
       AttributeDefinitions:
         - AttributeName: ID
           AttributeType: S
-        - AttributeName: name
-          AttributeType: S
-        - AttributeName: email
-          AttributeType: S
-        - AttributeName: message
-          AttributeType: S
       KeySchema:
         - AttributeName: ID
           KeyType: HASH
