@@ -127,7 +127,7 @@ Resources:
         - DynamoDBReadPolicy:
             TableName: !Ref ContactTable
         - SESCrudPolicy:
-            identityName: "k6sandeep.com"
+            IdentityName: "k6sandeep.com"
       Architectures:
         - x86_64
       MemorySize: 512
