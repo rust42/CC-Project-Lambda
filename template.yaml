@@ -60,8 +60,8 @@ Resources:
     Properties:
       TableName: Contact
       ProvisionedThroughput:
-        ReadCapacityUnits: 0
-        WriteCapacityUnits: 0
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
 
 
   BlogsFunction:
