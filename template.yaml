@@ -105,14 +105,14 @@ Resources:
         Blogs:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /contacts
+            Path: /
             Method: POST
             RestApiId: !Ref ContactGatewayApi
 
   BasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: ""
+      BasePath: "blog"
       DomainName: !Ref BlogsFunctionDomain
       RestApiId: !Ref BlogsGatewayApi
       Stage: !Ref BlogsGatewayApi.Stage
@@ -120,7 +120,7 @@ Resources:
   ContactBasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: ""
+      BasePath: "contact"
       DomainName: !Ref BlogsFunctionDomain
       RestApiId: !Ref ContactGatewayApi
       Stage: !Ref ContactGatewayApi.Stage
