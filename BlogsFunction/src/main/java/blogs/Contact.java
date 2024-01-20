@@ -44,7 +44,7 @@ public class Contact implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             item.put("email", AttributeValue.builder().s(email).build());
             item.put("ID", AttributeValue.builder().s(email).build());
             item.put("name", AttributeValue.builder().s(name).build());
-            item.put("message", AttributeValue.builder().build());
+            item.put("message", AttributeValue.builder().s(message).build());
 
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                     .withHeaders(headers);
