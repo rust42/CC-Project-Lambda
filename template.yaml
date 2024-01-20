@@ -56,13 +56,26 @@ Resources:
           HttpMethod: POST
 
   ContactTable:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
       TableName: Contact
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: name
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+        - AttributeName: message
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ID
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
       ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
-
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
 
   BlogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
