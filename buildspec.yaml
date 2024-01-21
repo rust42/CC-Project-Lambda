@@ -8,4 +8,4 @@ phases:
       - mv BlogsFunction/target/cc-project-lambda.jar .
   post_build:
     commands:
-      - sam deploy --s3-bucket cc-lambda-s3-bucket --template-file template.yaml --stack-name CCLambda --capabilities CAPABILITY_IAM --no-confirm-changeset
+      - sam deploy --s3-bucket cc-lambda-s3-bucket --template-file template.yaml --stack-name CCLambda --capabilities CAPABILITY_AUTO_EXPAND CAPABILITY_IAM --no-confirm-changeset
