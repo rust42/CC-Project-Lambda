@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  portfolio-lambda
+
+  Sample SAM Template for portfolio-lambda
+  
+
+Parameters:
+  Handler:
+    Type: String
+    Description: Handler function for the java lambda
+  Stage:
+    Type: String
+    Description: Stage environment of the function
+  Path:
+    Type: String
+    Description: Path of the function to map in the hosted domain
+  DomainName:
+    Type: String
+    Description: Domain name of the blog in Route53
+
+
+Resources:
+  ServerlessApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      CacheClusterEnabled: false
+      CacheClusterSize: "0.5"
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: GET
+
+  ServerlessFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./cc-project-lambda.jar
+      Handler: !Ref Handler
+      Runtime: java17
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+
+      Events:
+        Blogs:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /
+            Method: GET
+            RestApiId: !Ref ServerlessApi
+
+  ApiBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: !Ref Path
+      DomainName: !Ref DomainName
+      RestApiId: !Ref ServerlessApi
+      Stage: !Ref ServerlessApi.Stage
+
+
