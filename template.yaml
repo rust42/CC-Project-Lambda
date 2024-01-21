@@ -223,7 +223,7 @@ Resources:
   SubscriptionsApiBasePath:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath: "contact"
+      BasePath: "subscription"
       DomainName: !Ref AllBlogApiDomain
       RestApiId: !Ref SubscriptionGatewayApi
       Stage: !Ref SubscriptionGatewayApi.Stage
