@@ -25,7 +25,7 @@ Resources:
   BlogsApi:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: s3://blog-json-objects/ApiStack.yaml
+      TemplateURL: https://blog-json-objects.s3.amazonaws.com/ApiStack.yaml
       Parameters:
         Handler: blogs.App::handleRequest
         Stage: prod
