@@ -32,7 +32,7 @@ public class Subscriptions implements RequestHandler<APIGatewayProxyRequestEvent
         headers.put("Content-Type", "application/json");
         headers.put("X-Custom-Header", "application/json");
         headers.put("Access-Control-Allow-Origin", "*");
-        headers.put("Access-Control-Allow-Credentials", "true,");
+        headers.put("Access-Control-Allow-Credentials", "true");
 
         try {
             Map requestBody = mapper.readValue(input.getBody(), Map.class);
