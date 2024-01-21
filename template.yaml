@@ -46,6 +46,22 @@ Resources:
       CacheClusterEnabled: false
       CacheClusterSize: "0.5"
       Cors:
+        AllowMethods: "'POST ,GET, OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
+      MethodSettings:
+        - ResourcePath: /
+          HttpMethod: POST
+
+  SubscriptionGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      CacheClusterEnabled: false
+      CacheClusterSize: "0.5"
+      Cors:
         AllowMethods: "'POST,GET,OPTIONS'"
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
         AllowOrigin: "'*'"
@@ -54,6 +70,20 @@ Resources:
       MethodSettings:
         - ResourcePath: /
           HttpMethod: POST
+
+  SubscriptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Subscriptions
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
 
   ContactTable:
     Type: AWS::DynamoDB::Table
@@ -92,7 +122,33 @@ Resources:
             Method: GET
             RestApiId: !Ref BlogsGatewayApi
 
-  ContactPostApi:
+  SubscriptionsPostFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./cc-project-lambda.jar
+      Handler: blogs.Subscriptions::handleRequest
+      Runtime: java17
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SubscriptionsTable
+
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+
+      Events:
+        Blogs:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId: !Ref SubscriptionGatewayApi
+
+
+  ContactPostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: ./cc-project-lambda.jar
@@ -116,6 +172,7 @@ Resources:
             Path: /
             Method: POST
             RestApiId: !Ref ContactGatewayApi
+
 
   ContactDynamoDBStreamer:
     Type: AWS::Serverless::Function
@@ -162,6 +219,14 @@ Resources:
       DomainName: !Ref AllBlogApiDomain
       RestApiId: !Ref ContactGatewayApi
       Stage: !Ref ContactGatewayApi.Stage
+
+  SubscriptionsApiBasePath:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: "contact"
+      DomainName: !Ref AllBlogApiDomain
+      RestApiId: !Ref SubscriptionGatewayApi
+      Stage: !Ref SubscriptionGatewayApi.Stage
 
   #
   WebsiteDNSName:
