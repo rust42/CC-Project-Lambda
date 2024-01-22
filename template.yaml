@@ -122,16 +122,17 @@ Resources:
             Method: GET
             RestApiId: !Ref BlogsGatewayApi
 
-  SubscriptionsDeadLetterQueue:
-    Type: AWS::SQS::Queue
+#  SubscriptionsDeadLetterQueue:
+#    Type: AWS::SQS::Queue
 
   SubscriptionsSQSQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: "subscriptionsQueue.fifo"
       FifoQueue: true
-      RedrivePolicy:
-        deadLetterTargetArn: !Ref SubscriptionsDeadLetterQueue
+#      RedrivePolicy:
+#        deadLetterTargetArn: !Ref SubscriptionsDeadLetterQueue
+#        maxReceiveCount: 10
 
   SubscriptionQueueIngestionFunction:
     Type: AWS::Serverless::Function
