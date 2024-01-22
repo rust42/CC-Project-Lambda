@@ -129,7 +129,6 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: "subscriptions-queue.fifo"
-      VisibilityTimeout: 10
       RedrivePolicy:
         deadLetterTargetArn: !Ref SubscriptionsDeadLetterQueue
 
