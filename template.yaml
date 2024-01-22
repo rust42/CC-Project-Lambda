@@ -128,7 +128,8 @@ Resources:
   SubscriptionsSQSQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: "subscriptions-queue.fifo"
+      QueueName: "subscriptions-queue"
+      FifoQueue: true
       RedrivePolicy:
         deadLetterTargetArn: !Ref SubscriptionsDeadLetterQueue
 
