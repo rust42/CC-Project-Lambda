@@ -22,23 +22,6 @@ Resources:
       SecurityPolicy: TLS_1_2
       RegionalCertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
 
-
-  BlogsGatewayApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: prod
-      CacheClusterEnabled: false
-      CacheClusterSize: "0.5"
-      Cors:
-        AllowMethods: "'POST,GET,OPTIONS'"
-        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
-        AllowOrigin: "'*'"
-        MaxAge: "'600'"
-        AllowCredentials: false
-      MethodSettings:
-        - ResourcePath: /
-          HttpMethod: GET
-
   ContactGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -100,27 +83,6 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
-
-  BlogsFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: ./cc-project-lambda.jar
-      Handler: blogs.App::handleRequest
-      Runtime: java17
-      Architectures:
-        - x86_64
-      MemorySize: 512
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          PARAM1: VALUE
-
-      Events:
-        Blogs:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /
-            Method: GET
-            RestApiId: !Ref BlogsGatewayApi
 
 #  SubscriptionsDeadLetterQueue:
 #    Type: AWS::SQS::Queue
@@ -214,7 +176,7 @@ Resources:
     Properties:
       Runtime: java17
       CodeUri: ./cc-project-lambda.jar
-      Handler: blogs.ContactTableStreamer::handleRequest
+      Handler: blogs.ContactDynamoDBStream::handleRequest
       Policies:
         - DynamoDBReadPolicy:
             TableName: !Ref ContactTable
@@ -239,13 +201,6 @@ Resources:
             BatchSize: 10
             StartingPosition: LATEST
 
-  BlogApiBasePath:
-    Type: AWS::ApiGateway::BasePathMapping
-    Properties:
-      BasePath: "blog"
-      DomainName: !Ref AllBlogApiDomain
-      RestApiId: !Ref BlogsGatewayApi
-      Stage: !Ref BlogsGatewayApi.Stage
 
   ContactApiBasePath:
     Type: AWS::ApiGateway::BasePathMapping
@@ -277,15 +232,8 @@ Resources:
 ##            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  BlogsApi:
-    Description: "API Gateway endpoint URL for Prod stage for Blogs function"
-    Value: !Sub "https://${BlogsGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
-  BlogsFunction:
-    Description: "Blogs Function ARN"
-    Value: !GetAtt BlogsFunction.Arn
-  BlogsFunctionIamRole:
-    Description: "Implicit IAM Role created for Blogs function"
-    Value: !GetAtt BlogsFunction.Arn
+  SubscriptionsFunction:
+    Description: "Subscription Function ARN"
+    Value: !GetAtt SubscriptionsPostFunction.Arn
+  ContactFunction:
+    Description: "Contact Function ARN"
