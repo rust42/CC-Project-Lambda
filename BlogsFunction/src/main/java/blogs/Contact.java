@@ -38,7 +38,7 @@ public class Contact implements RequestHandler<APIGatewayProxyRequestEvent, APIG
             Map requestBody = mapper.readValue(input.getBody(), Map.class);
             String name = (String) requestBody.get("name");
             String email = (String) requestBody.get("email");
-            String message = (String) requestBody.get("name");
+            String message = (String) requestBody.get("message");
 
             UUID uuid = UUID.randomUUID();
 
