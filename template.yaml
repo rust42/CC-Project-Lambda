@@ -129,9 +129,31 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: "subscriptions-queue.fifo"
-      VisibilityTimeout: 10.0
+      VisibilityTimeout: 10
       RedrivePolicy:
         deadLetterTargetArn: !Ref SubscriptionsDeadLetterQueue
+
+  SubscriptionQueueIngestionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./cc-project-lambda.jar
+      Handler: blogs.SubscriptionsIngestion:handleRequest
+      Runtime: java17
+      Policies:
+        - SQSPollerPolicy:
+              QueueName: !GetAtt SubscriptionsSQSQueue.QueueName
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          PARAM1: VALUE
+      Events:
+       QueueIngestion:
+          Type: SQS
+          Properties:
+            BatchSize: 10
+            Queue: !GetAtt SubscriptionsSQSQueue.Arn
 
   SubscriptionsPostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
