@@ -44,14 +44,12 @@ public class Subscriptions implements RequestHandler<APIGatewayProxyRequestEvent
 
             Map<String, AttributeValue> item  = new HashMap<>();
             item.put("email", AttributeValue.builder().s(email).build());
-            item.put("ID", AttributeValue.builder().s(uuid.toString()).build());
-            item.put("name", AttributeValue.builder().s(name).build());
-            item.put("message", AttributeValue.builder().s(message).build());
-
+            item.put("UUID", AttributeValue.builder().s(uuid.toString()).build());
+            item.put("isVerified", AttributeValue.builder().bool(false).build());
             APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                     .withHeaders(headers);
             PutItemRequest putItemRequest = PutItemRequest.builder()
-                    .tableName("Contact").item(item).build();
+                    .tableName("Subscriptions").item(item).build();
 
             PutItemResponse putItemResponse = ddb.putItem(putItemRequest);
             System.out.println(putItemResponse);
