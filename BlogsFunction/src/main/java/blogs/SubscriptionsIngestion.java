@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 
 
-public class Subscriptions implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class SubscriptionsIngestion implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final ObjectMapper mapper = new ObjectMapper();
     final DynamoDbClient ddb = DynamoDbClient.builder().region(Region.US_EAST_1).build();
