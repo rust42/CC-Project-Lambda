@@ -237,3 +237,4 @@ Outputs:
     Value: !GetAtt SubscriptionsPostFunction.Arn
   ContactFunction:
     Description: "Contact Function ARN"
+    Value: !GetAtt ContactPostFunction.Arn
