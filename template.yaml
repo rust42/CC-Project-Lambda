@@ -33,7 +33,6 @@ Resources:
         AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
         AllowOrigin: "'*'"
         MaxAge: "'600'"
-
         AllowCredentials: false
       MethodSettings:
         - ResourcePath: /
@@ -103,7 +102,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./cc-project-lambda.jar
-      Handler: blogs.SubscriptionsSQSIngester:handleRequest
+      Handler: blogs.SubscriptionsSQSIngester::handleRequest
       Runtime: java17
       Policies:
         - SQSPollerPolicy:
