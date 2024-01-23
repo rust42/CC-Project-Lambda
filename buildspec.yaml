@@ -4,7 +4,7 @@ phases:
   build:
     commands:
       - echo Entering build phase
-      - mvn clean package -f ./BlogsFunction
+      - mvn clean package -e -f ./BlogsFunction
       - mv BlogsFunction/target/cc-project-lambda.jar .
   post_build:
     commands:
