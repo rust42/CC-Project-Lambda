@@ -17,6 +17,7 @@ import java.util.*
 import kotlin.collections.mapOf;
 
 
+data class SubscriptionSQSBody(val identifier: String, val email: String)
 data class SubscriptionsRequest(val email: String)
 class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private val mapper = ObjectMapper().registerKotlinModule()
@@ -54,7 +55,8 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
     private fun sendSQSMessage(email: String, identifier: String) {
         val client = SqsClient.builder().region(Region.US_EAST_1).build()
 
-        val message = mapOf(Pair("email", email), Pair("identifier", identifier))
+        val message = SubscriptionSQSBody(identifier = identifier, email = email)
+
         val messageBody = mapper.writeValueAsString(message)
 
         val messageRequest = SendMessageRequest.builder()

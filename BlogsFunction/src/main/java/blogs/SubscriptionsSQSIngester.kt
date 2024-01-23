@@ -3,9 +3,14 @@ package blogs
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestHandler
 import com.amazonaws.services.lambda.runtime.events.SQSEvent
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.lang.RuntimeException
 
 class SubscriptionsSQSIngester: RequestHandler<SQSEvent, String> {
+    private val mapper = ObjectMapper().registerKotlinModule()
+
     private val emailSender = EmailSender()
     override fun handleRequest(event: SQSEvent?, context: Context?): String {
         val records = event?.records
@@ -15,14 +20,16 @@ class SubscriptionsSQSIngester: RequestHandler<SQSEvent, String> {
         }
         context?.logger?.log("Processing ${records.size} records")
         for (record in records) {
-            val attributes = record.attributes
-            val email = attributes["email"]
-            val identifier = attributes["identifier"]
-            context?.logger?.log("Found record: ${email}: $identifier")
-            if (email != null && identifier != null) {
-                context?.logger?.log("Sending email to: $email")
-                sendSubscriptionVerificationEmail(email, identifier)
+            val body = record.body
+
+            if (body == null) {
+                context?.logger?.log("body is null")
+                continue
             }
+            val contact = mapper.readValue<SubscriptionSQSBody>(body)
+            context?.logger?.log("Found record: ${contact.email}: ${contact.identifier}")
+            context?.logger?.log("Sending email to: ${contact.email}")
+            sendSubscriptionVerificationEmail(contact.email, contact.identifier)
         }
         return "Processed ${event.records?.size ?: 0}"
     }
