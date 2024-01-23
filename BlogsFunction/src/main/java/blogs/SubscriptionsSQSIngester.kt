@@ -13,12 +13,14 @@ class SubscriptionsSQSIngester: RequestHandler<SQSEvent, String> {
         if (records == null || records.size == 0) {
             throw RuntimeException("SQSEvent triggered with empty records")
         }
-
+        context?.logger?.log("Processing ${records.size} records")
         for (record in records) {
             val attributes = record.attributes
             val email = attributes["email"]
             val identifier = attributes["identifier"]
+            context?.logger?.log("Found record: ${email}: $identifier")
             if (email != null && identifier != null) {
+                context?.logger?.log("Sending email to: $email")
                 sendSubscriptionVerificationEmail(email, identifier)
             }
         }
