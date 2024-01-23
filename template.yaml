@@ -107,6 +107,14 @@ Resources:
       Policies:
         - SQSPollerPolicy:
               QueueName: !GetAtt SubscriptionsSQSQueue.QueueName
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'ses:SendEmail'
+                - 'ses:SendRawEmail'
+              Resource: '*'
+
       Architectures:
         - x86_64
       MemorySize: 512
