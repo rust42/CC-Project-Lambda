@@ -80,7 +80,7 @@ class EmailTemplate {
             .header { font-size: 24px; text-align: center; padding: 20px 0; }
             .content { font-size: 16px; line-height: 1.6; }
             .footer { text-align: center; padding: 20px 0; font-size: 12px; color: #777777; }
-            .button { display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; }
+            .button { display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff !important; text-decoration: none; border-radius: 5px; }
         </style>
         </head>
         <body>
