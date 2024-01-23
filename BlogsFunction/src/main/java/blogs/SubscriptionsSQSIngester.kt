@@ -29,7 +29,7 @@ class SubscriptionsSQSIngester: RequestHandler<SQSEvent, String> {
             val contact = mapper.readValue<SubscriptionSQSBody>(body)
             context?.logger?.log("Found record: ${contact.email}: ${contact.identifier}")
             context?.logger?.log("Sending email to: ${contact.email}")
-            sendSubscriptionVerificationEmail(contact.email, contact.identifier)
+            sendSubscriptionVerificationEmail(contact.identifier, contact.email,)
         }
         return "Processed ${event.records?.size ?: 0}"
     }
