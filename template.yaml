@@ -53,6 +53,8 @@ Resources:
       MethodSettings:
         - ResourcePath: /
           HttpMethod: POST
+        - ResourcePath: /verify
+          HttpMethod: POST
 
   SubscriptionsTable:
     Type: AWS::DynamoDB::Table
@@ -100,7 +102,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./cc-project-lambda.jar
-      Handler: blogs.SubscriptionsIngestion:handleRequest
+      Handler: blogs.SubscriptionsSQSIngester:handleRequest
       Runtime: java17
       Policies:
         - SQSPollerPolicy:
@@ -110,7 +112,7 @@ Resources:
       MemorySize: 512
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          PARAM1: VALUE
+          SQS_QUEUE_URL_ENV_NAME: !GetAtt SubscriptionsSQSQueue.QueueUrl
       Events:
        QueueIngestion:
           Type: SQS
@@ -134,16 +136,22 @@ Resources:
       MemorySize: 512
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          PARAM1: VALUE
+          SQS_QUEUE_URL_ENV_NAME: !GetAtt SubscriptionsSQSQueue.QueueUrl
 
       Events:
-        Blogs:
+        PostApi:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /
             Method: POST
             RestApiId: !Ref SubscriptionGatewayApi
 
+        Verify:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /verify
+            Method: POST
+            RestApiId: !Ref SubscriptionGatewayApi
 
   ContactPostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -163,7 +171,7 @@ Resources:
           PARAM1: VALUE
 
       Events:
-        Blogs:
+        PostContactApi:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /
