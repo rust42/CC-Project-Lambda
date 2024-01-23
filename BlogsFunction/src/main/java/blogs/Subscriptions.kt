@@ -11,19 +11,46 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
+import software.amazon.awssdk.services.dynamodb.model.QueryRequest
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
 import software.amazon.awssdk.services.sqs.SqsClient
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import java.util.*
-import kotlin.collections.mapOf;
 
 
 data class SubscriptionSQSBody(val identifier: String, val email: String)
+data class SubscriptionVerificationBody(val identifier: String)
+
 data class SubscriptionsRequest(val email: String)
 class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
     private val mapper = ObjectMapper().registerKotlinModule()
     private val dynamoDb = DynamoDbClient.builder().region(Region.US_EAST_1).build()
 
-    override fun handleRequest(event: APIGatewayProxyRequestEvent?, contact: Context?): APIGatewayProxyResponseEvent {
+    override fun handleRequest(event: APIGatewayProxyRequestEvent?, context: Context?): APIGatewayProxyResponseEvent {
+        val requestPath = event?.path
+
+        context?.logger?.log("Request path: $requestPath")
+
+
+        if (requestPath == "/verify") {
+            return handleVerificationRequest(event, context)
+        }
+        return handleSubscriptionsRequest(event, context)
+    }
+
+    private fun handleVerificationRequest(event: APIGatewayProxyRequestEvent?, context: Context?): APIGatewayProxyResponseEvent {
+        val body = event?.body
+        val response = APIGatewayProxyResponseEvent().addCorsHeaders()
+
+        if (body == null) {
+            return response.withStatusCode(500)
+        }
+
+        val request = mapper.readValue<SubscriptionVerificationBody>(body)
+        return verify(request.identifier, context)
+    }
+
+    private fun handleSubscriptionsRequest(event: APIGatewayProxyRequestEvent?, context: Context?): APIGatewayProxyResponseEvent {
         val body = event?.body
         val response = APIGatewayProxyResponseEvent().addCorsHeaders()
 
@@ -34,6 +61,32 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
         val request = mapper.readValue<SubscriptionsRequest>(body)
         store(request.email)
         return response.withBody("Subscriptions added")
+    }
+
+    private fun verify(identifier: String, context: Context?): APIGatewayProxyResponseEvent {
+        val queryRequest = QueryRequest.builder()
+            .tableName("Subscriptions")
+            .keyConditionExpression("identifier = :v_id")
+            .expressionAttributeValues(
+                mapOf(":v_id" to AttributeValue.builder().s(identifier).build())
+            ).build()
+        val queryResult = dynamoDb.query(queryRequest)
+        val item = queryResult.items().first()
+            ?: return APIGatewayProxyResponseEvent().addCorsHeaders()
+                .withBody("No such item found")
+                .withStatusCode(500)
+
+        val updateRequest = UpdateItemRequest.builder()
+            .tableName("Subscriptions")
+            .key(mapOf("identifier" to AttributeValue.builder().s(identifier).build()))
+            .updateExpression("SET verified = :v")
+            .expressionAttributeValues(mapOf(":v" to AttributeValue.builder().bool(true).build()))
+            .returnValues("ALL_NEW")
+            .build()
+        val response = dynamoDb.updateItem(updateRequest)
+        context?.logger?.log("Updated items $response")
+        return APIGatewayProxyResponseEvent().addCorsHeaders().withStatusCode(200)
+            .withBody("Successfully updated results")
     }
 
     private fun store(email: String) {
