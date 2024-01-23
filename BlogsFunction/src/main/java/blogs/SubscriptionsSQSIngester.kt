@@ -8,18 +8,21 @@ import java.lang.RuntimeException
 class SubscriptionsSQSIngester: RequestHandler<SQSEvent, String> {
     private val emailSender = EmailSender()
     override fun handleRequest(event: SQSEvent?, context: Context?): String {
-        event?.records?.let {
-            for (record in it) {
-                val attributes = record.attributes
-                val email = attributes["email"]
-                val identifier = attributes["identifier"]
-                if (email != null && identifier != null) {
-                    sendSubscriptionVerificationEmail(email, identifier)
-                }
-            }
-            return "Processed ${event.records?.size ?: 0}"
+        val records = event?.records
+
+        if (records == null || records.size == 0) {
+            throw RuntimeException("SQSEvent triggered with empty records")
         }
-        throw  RuntimeException("SQSEvent triggered with empty records")
+
+        for (record in records) {
+            val attributes = record.attributes
+            val email = attributes["email"]
+            val identifier = attributes["identifier"]
+            if (email != null && identifier != null) {
+                sendSubscriptionVerificationEmail(email, identifier)
+            }
+        }
+        return "Processed ${event.records?.size ?: 0}"
     }
 
     private fun sendSubscriptionVerificationEmail(identifier: String, email: String) {

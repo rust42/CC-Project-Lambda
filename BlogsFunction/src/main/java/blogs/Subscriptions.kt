@@ -23,13 +23,16 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
     private val dynamoDb = DynamoDbClient.builder().region(Region.US_EAST_1).build()
 
     override fun handleRequest(event: APIGatewayProxyRequestEvent?, contact: Context?): APIGatewayProxyResponseEvent {
+        val body = event?.body
         val response = APIGatewayProxyResponseEvent().addCorsHeaders()
-        event?.body?.let {
-            val request = mapper.readValue<SubscriptionsRequest>(it)
-            store(request.email)
-            return response.withBody("Subscriptions added")
+
+        if (body == null) {
+            return response.withStatusCode(500)
         }
-        return response.withStatusCode(500)
+
+        val request = mapper.readValue<SubscriptionsRequest>(body)
+        store(request.email)
+        return response.withBody("Subscriptions added")
     }
 
     private fun store(email: String) {
@@ -41,8 +44,8 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
         attributes["verified"] = AttributeValue.builder().bool(false).build()
 
         val putItemRequest = PutItemRequest.builder().tableName("Subscriptions")
-                .item(attributes)
-                .build()
+            .item(attributes)
+            .build()
 
         dynamoDb.putItem(putItemRequest)
         sendSQSMessage(email, identifier)
