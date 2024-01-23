@@ -3,8 +3,9 @@ package blogs
 import com.amazonaws.services.lambda.runtime.Context
 import com.amazonaws.services.lambda.runtime.RequestHandler
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent
-class ContactDynamoDBStream : RequestHandler<DynamodbEvent, String> {
+class ContactDynamoDBStream: RequestHandler<DynamodbEvent, String> {
     private val emailSender = EmailSender()
+
     override fun handleRequest(ddbEvent: DynamodbEvent, context: Context): String {
         val records = ddbEvent.records
         for (record in records) {

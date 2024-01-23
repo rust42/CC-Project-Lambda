@@ -5,7 +5,7 @@ import software.amazon.awssdk.services.ses.SesClient
 import software.amazon.awssdk.services.ses.model.*
 
 class EmailSender {
-    fun sendEmail(subject: String, message: String, toEmail: String) {
+    private fun sendEmail(subject: String, message: String, toEmail: String) {
         val sender = "admin@k6sandeep.com"
         val destination = Destination.builder()
                 .toAddresses(toEmail)
@@ -40,9 +40,13 @@ class EmailSender {
             exception.printStackTrace()
         }
     }
+
+    fun sendContactConfirmationEmail(name: String, toEmail: String) {
+        sendEmail("Thanks for reaching out", EmailTemplate.contactConfirmation(name), toEmail)
+    }
+
+    fun sendSubscriptionEmail(identifier: String, toEmail: String) {
+        sendEmail("Subcription confirmation", EmailTemplate.subscriptionConfirmation(identifier), toEmail)
+    }
 }
 
-fun EmailSender.sendContactConfirmationEmail(name: String, toEmail: String) {
-    val subject = "Thanks for reaching out"
-    sendEmail(subject, EmailTemplate.contactConfirmation(name), toEmail)
-}
