@@ -59,6 +59,7 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
 
         val messageRequest = SendMessageRequest.builder()
             .queueUrl(Constants.sqsUrl)
+            .messageGroupId(email)
             .messageDeduplicationId(identifier)
             .messageBody(messageBody)
             .build()
