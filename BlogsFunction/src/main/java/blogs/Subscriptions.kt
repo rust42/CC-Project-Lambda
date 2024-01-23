@@ -11,8 +11,11 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse
+import software.amazon.awssdk.services.sqs.SqsClient
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import java.util.*
+import kotlin.collections.mapOf;
+
 
 data class SubscriptionsRequest(val email: String)
 class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
@@ -29,15 +32,34 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
         return response.withStatusCode(500)
     }
 
-    private fun store(email: String): PutItemResponse {
+    private fun store(email: String) {
+        val identifier = UUID.randomUUID().toString()
+
         val attributes = mutableMapOf<String, AttributeValue>()
         attributes["email"] = AttributeValue.builder().s(email).build()
-        attributes["identifier"] = AttributeValue.builder().s(UUID.randomUUID().toString()).build()
+        attributes["identifier"] = AttributeValue.builder().s(identifier).build()
         attributes["verified"] = AttributeValue.builder().bool(false).build()
 
         val putItemRequest = PutItemRequest.builder().tableName("Subscriptions")
                 .item(attributes)
                 .build()
-        return dynamoDb.putItem(putItemRequest)
+
+        dynamoDb.putItem(putItemRequest)
+        sendSQSMessage(email, identifier)
+    }
+
+    private fun sendSQSMessage(email: String, identifier: String) {
+        val client = SqsClient.builder().region(Region.US_EAST_1).build()
+
+        val message = mapOf(Pair("email", email), Pair("identifier", identifier))
+        val messageBody = mapper.writeValueAsString(message)
+
+        val messageRequest = SendMessageRequest.builder()
+            .queueUrl(Constants.sqsUrl)
+            .messageDeduplicationId(identifier)
+            .messageBody(messageBody)
+            .build()
+        client.sendMessage(messageRequest)
+        client.close()
     }
 }
