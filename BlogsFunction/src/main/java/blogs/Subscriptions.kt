@@ -31,8 +31,7 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
 
         context?.logger?.log("Request path: $requestPath")
 
-
-        if (requestPath == "/verify") {
+        if (requestPath == "/subscription/verify") {
             return handleVerificationRequest(event, context)
         }
         return handleSubscriptionsRequest(event, context)
