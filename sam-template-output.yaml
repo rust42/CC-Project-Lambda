@@ -1,0 +1,261 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "portfolio-lambda\nSample SAM Template for portfolio-lambda\n"
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+Resources:
+  AllBlogApiDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: blog.api.k6sandeep.com
+      EndpointConfiguration:
+        Types:
+        - REGIONAL
+      SecurityPolicy: TLS_1_2
+      RegionalCertificateArn: arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4
+  ContactGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      CacheClusterEnabled: false
+      CacheClusterSize: '0.5'
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
+      MethodSettings:
+      - ResourcePath: /
+        HttpMethod: POST
+  SubscriptionGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      CacheClusterEnabled: false
+      CacheClusterSize: '0.5'
+      Cors:
+        AllowMethods: "'POST,GET,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: false
+      MethodSettings:
+      - ResourcePath: /
+        HttpMethod: POST
+      - ResourcePath: /verify
+        HttpMethod: POST
+  SubscriptionsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Subscriptions
+      AttributeDefinitions:
+      - AttributeName: email
+        AttributeType: S
+      KeySchema:
+      - AttributeName: email
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+  ContactTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Contact
+      AttributeDefinitions:
+      - AttributeName: ID
+        AttributeType: S
+      KeySchema:
+      - AttributeName: ID
+        KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+  SubscriptionsSQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: subscriptionsQueue.fifo
+      FifoQueue: true
+  SubscriptionQueueIngestionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://cc-lambda-s3-bucket/c7c1762d1e5cf12055859dc066803d9f
+      Handler: blogs.SubscriptionsSQSIngester::handleRequest
+      Runtime: java17
+      Policies:
+      - SQSPollerPolicy:
+          QueueName:
+            Fn::GetAtt:
+            - SubscriptionsSQSQueue
+            - QueueName
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - ses:SendEmail
+          - ses:SendRawEmail
+          Resource: '*'
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          SQS_QUEUE_URL_ENV_NAME:
+            Fn::GetAtt:
+            - SubscriptionsSQSQueue
+            - QueueUrl
+      Events:
+        QueueIngestion:
+          Type: SQS
+          Properties:
+            BatchSize: 10
+            Queue:
+              Fn::GetAtt:
+              - SubscriptionsSQSQueue
+              - Arn
+  SubscriptionsPostFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://cc-lambda-s3-bucket/c7c1762d1e5cf12055859dc066803d9f
+      Handler: blogs.Subscriptions::handleRequest
+      Runtime: java17
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SubscriptionsTable
+      - SQSSendMessagePolicy:
+          QueueName:
+            Fn::GetAtt:
+            - SubscriptionsSQSQueue
+            - QueueName
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          SQS_QUEUE_URL_ENV_NAME:
+            Fn::GetAtt:
+            - SubscriptionsSQSQueue
+            - QueueUrl
+      Events:
+        PostApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId:
+              Ref: SubscriptionGatewayApi
+        Verify:
+          Type: Api
+          Properties:
+            Path: /verify
+            Method: POST
+            RestApiId:
+              Ref: SubscriptionGatewayApi
+  ContactPostFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://cc-lambda-s3-bucket/c7c1762d1e5cf12055859dc066803d9f
+      Handler: blogs.Contact::handleRequest
+      Runtime: java17
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: ContactTable
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        PostContactApi:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId:
+              Ref: ContactGatewayApi
+  ContactDynamoDBStreamer:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: java17
+      CodeUri: s3://cc-lambda-s3-bucket/c7c1762d1e5cf12055859dc066803d9f
+      Handler: blogs.ContactDynamoDBStream::handleRequest
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: ContactTable
+      - Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - ses:SendEmail
+          - ses:SendRawEmail
+          Resource: '*'
+      Architectures:
+      - x86_64
+      MemorySize: 512
+      Environment:
+        Variables:
+          PARAM1: VALUE
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream:
+              Fn::GetAtt:
+              - ContactTable
+              - StreamArn
+            BatchSize: 10
+            StartingPosition: LATEST
+  ContactApiBasePath:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: contact
+      DomainName:
+        Ref: AllBlogApiDomain
+      RestApiId:
+        Ref: ContactGatewayApi
+      Stage:
+        Ref: ContactGatewayApi.Stage
+  SubscriptionsApiBasePath:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: subscription
+      DomainName:
+        Ref: AllBlogApiDomain
+      RestApiId:
+        Ref: SubscriptionGatewayApi
+      Stage:
+        Ref: SubscriptionGatewayApi.Stage
+  WebsiteDNSName:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: Z05093165SS7MHO0JP43
+      RecordSets:
+      - Name: blog.api.k6sandeep.com.
+        Type: A
+        AliasTarget:
+          DNSName:
+            Fn::GetAtt:
+            - AllBlogApiDomain
+            - RegionalDomainName
+          HostedZoneId: Z1UJRXOUMOOFQ8
+Outputs:
+  SubscriptionsFunction:
+    Description: Subscription Function ARN
+    Value:
+      Fn::GetAtt:
+      - SubscriptionsPostFunction
+      - Arn
+  ContactFunction:
+    Description: Contact Function ARN
+    Value:
+      Fn::GetAtt:
+      - ContactPostFunction
+      - Arn
