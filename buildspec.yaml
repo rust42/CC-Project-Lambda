@@ -10,6 +10,8 @@ phases:
       - aws cloudformation package --template-file template.yaml 
         --output-template-file sam-template-output.yaml 
         --s3-bucket cc-lambda-s3-bucket
-      - aws cloudformation deploy --template-file ./sam-template-output.yaml 
-        --stack-name CCLambda 
-        --capabilities CAPABILITY_IAM
+#      - aws cloudformation deploy --template-file ./sam-template-output.yaml
+#        --stack-name CCLambda
+#        --capabilities CAPABILITY_IAM
+    artifacts:
+      - sam-template-output.yaml
