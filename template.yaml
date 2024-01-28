@@ -101,7 +101,7 @@ Resources:
   SubscriptionQueueIngestionFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./cc-project-lambda.jar
+      CodeUri: ./BlogsFunction/target/cc-project-lambda.jar
       Handler: blogs.SubscriptionsSQSIngester::handleRequest
       Runtime: java17
       Policies:
@@ -131,7 +131,7 @@ Resources:
   SubscriptionsPostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: ./cc-project-lambda.jar
+      CodeUri: ./BlogsFunction/target/cc-project-lambda.jar
       Handler: blogs.Subscriptions::handleRequest
       Runtime: java17
       Policies:
@@ -164,7 +164,7 @@ Resources:
   ContactPostFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: ./cc-project-lambda.jar
+      CodeUri: ./BlogsFunction/target/cc-project-lambda.jar
       Handler: blogs.Contact::handleRequest
       Runtime: java17
       Policies:
@@ -191,7 +191,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Runtime: java17
-      CodeUri: ./cc-project-lambda.jar
+      CodeUri: ./BlogsFunction/target/cc-project-lambda.jar
       Handler: blogs.ContactDynamoDBStream::handleRequest
       Policies:
         - DynamoDBReadPolicy:
