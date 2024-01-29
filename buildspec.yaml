@@ -11,4 +11,5 @@ phases:
         --output-template-file sam-template-output.yaml 
         --s3-bucket cc-lambda-s3-bucket
     artifacts:
-      - sam-template-output.yaml
+      files:
+        - sam-template-output.yaml
