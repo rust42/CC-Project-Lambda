@@ -1,0 +1,26 @@
+[
+  {
+    "ParameterKey": "ApiDomainName",
+    "ParameterValue": "blog.api.k6sandeep.com"
+  },
+  {
+    "ParameterKey": "CertificateArn",
+    "ParameterValue": "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
+  },
+  {
+    "ParameterKey": "HostedZoneId",
+    "ParameterValue": "Z05093165SS7MHO0JP43"
+  },
+  {
+    "ParameterKey": "SESEmailSender",
+    "ParameterValue": "admin@k6sandeep.com"
+  },
+  {
+    "ParameterKey": "SESBCCEmail",
+    "ParameterValue": "sndpkrl007@gmail.com"
+  },
+  {
+    "ParameterKey": "ApiGatewayRegionalHostedZoneId",
+    "ParameterValue": "Z1UJRXOUMOOFQ8"
+  }
+]

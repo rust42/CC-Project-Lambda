@@ -65,6 +65,7 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
     private fun verify(identifier: String, context: Context?): APIGatewayProxyResponseEvent {
         val queryRequest = QueryRequest.builder()
             .tableName("Subscriptions")
+            .indexName("identifier")
             .keyConditionExpression("identifier = :v_id")
             .expressionAttributeValues(
                 mapOf(":v_id" to AttributeValue.builder().s(identifier).build())

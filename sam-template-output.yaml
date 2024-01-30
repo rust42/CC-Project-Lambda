@@ -1,6 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: "portfolio-lambda\nSample SAM Template for portfolio-lambda\n"
+Parameters:
+  ApiDomainName:
+    Type: String
+    Description: Domain name of the blog apis
+  CertificateArn:
+    Type: String
+    Description: Certificate for blog api domain
+  SESEmailSender:
+    Type: String
+    Description: SES email sender address
+  SESBCCEmail:
+    Type: String
+    Description: BCC email to forward the email
+  HostedZoneId:
+    Type: String
+    Description: Hosted zone id
+  ApiGatewayRegionalHostedZoneId:
+    Type: String
+    Description: ApiGateway hosted zone id for region us-east-1
 Globals:
   Function:
     Timeout: 20
@@ -9,12 +28,14 @@ Resources:
   AllBlogApiDomain:
     Type: AWS::ApiGateway::DomainName
     Properties:
-      DomainName: blog.api.k6sandeep.com
+      DomainName:
+        Ref: ApiDomainName
       EndpointConfiguration:
         Types:
         - REGIONAL
       SecurityPolicy: TLS_1_2
-      RegionalCertificateArn: arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4
+      RegionalCertificateArn:
+        Ref: CertificateArn
   ContactGatewayApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -108,6 +129,10 @@ Resources:
             Fn::GetAtt:
             - SubscriptionsSQSQueue
             - QueueUrl
+          SES_EMAIL_SENDER_EMAIL_ADDRESS:
+            Ref: SESEmailSender
+          SES_EMAIL_BCC_ADDRESS:
+            Ref: SESBCCEmail
       Events:
         QueueIngestion:
           Type: SQS
@@ -202,7 +227,10 @@ Resources:
       MemorySize: 512
       Environment:
         Variables:
-          PARAM1: VALUE
+          SES_EMAIL_SENDER_EMAIL_ADDRESS:
+            Ref: SESEmailSender
+          SES_EMAIL_BCC_ADDRESS:
+            Ref: SESBCCEmail
       Events:
         Stream:
           Type: DynamoDB
@@ -238,14 +266,16 @@ Resources:
     Properties:
       HostedZoneId: Z05093165SS7MHO0JP43
       RecordSets:
-      - Name: blog.api.k6sandeep.com.
+      - Name:
+          Fn::Sub: ${ApiDomainName}.
         Type: A
         AliasTarget:
           DNSName:
             Fn::GetAtt:
             - AllBlogApiDomain
             - RegionalDomainName
-          HostedZoneId: Z1UJRXOUMOOFQ8
+          HostedZoneId:
+            Ref: ApiGatewayRegionalHostedZoneId
 Outputs:
   SubscriptionsFunction:
     Description: Subscription Function ARN
