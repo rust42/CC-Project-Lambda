@@ -6,10 +6,10 @@ import software.amazon.awssdk.services.ses.model.*
 
 class EmailSender {
     private fun sendEmail(subject: String, message: String, toEmail: String) {
-        val sender = "admin@k6sandeep.com"
+        val sender = Constants.emailAdmin
         val destination = Destination.builder()
                 .toAddresses(toEmail)
-                .bccAddresses("sndpkrl007@gmail.com")
+                .bccAddresses(Constants.bccAddress)
                 .build()
         val content = Content.builder()
                 .data(message)

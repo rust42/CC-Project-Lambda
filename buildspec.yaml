@@ -7,12 +7,13 @@ phases:
       - mvn clean package -e -f ./BlogsFunction
   post_build:
     commands:
-      - aws cloudformation package --template-file template.yaml 
-        --output-template-file sam-template-output.yaml 
+      - aws cloudformation package --template-file template.yaml
+        --output-template-file sam-template-output.yaml
         --s3-bucket cc-lambda-s3-bucket
-      - aws cloudformation deploy --template-file sam-template-output.yaml 
-        --stack-name CCLambda 
+      - aws cloudformation deploy --template-file sam-template-output.yaml
+        --stack-name CCLambda
         --capabilities CAPABILITY_IAM
+        --parameter-overrides file://./parameters.json
     artifacts:
       files:
         - sam-template-output.yaml

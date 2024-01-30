@@ -4,6 +4,27 @@ Description: >
   portfolio-lambda
 
   Sample SAM Template for portfolio-lambda
+  
+Parameters:
+  ApiDomainName:
+    Type: String
+    Description: "Domain name of the blog apis"
+  CertificateArn:
+    Type: String
+    Description: "Certificate for blog api domain"
+  SESEmailSender:
+    Type: String
+    Description: "SES email sender address"
+  SESBCCEmail:
+    Type: String
+    Description: "BCC email to forward the email"
+  HostedZoneId:
+    Type: String
+    Description: "Hosted zone id"
+  ApiGatewayRegionalHostedZoneId:
+    Type: String
+    Description: "ApiGateway hosted zone id for region us-east-1"
+
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -15,12 +36,12 @@ Resources:
   AllBlogApiDomain:
     Type: AWS::ApiGateway::DomainName
     Properties:
-      DomainName: blog.api.k6sandeep.com
+      DomainName: !Ref ApiDomainName
       EndpointConfiguration:
         Types:
           - REGIONAL
       SecurityPolicy: TLS_1_2
-      RegionalCertificateArn: "arn:aws:acm:us-east-1:779574454656:certificate/8b2adc08-cc91-4bf5-8007-c563d6d66fd4"
+      RegionalCertificateArn: !Ref CertificateArn
 
   ContactGatewayApi:
     Type: AWS::Serverless::Api
@@ -121,6 +142,9 @@ Resources:
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           SQS_QUEUE_URL_ENV_NAME: !GetAtt SubscriptionsSQSQueue.QueueUrl
+          SES_EMAIL_SENDER_EMAIL_ADDRESS: !Ref SESEmailSender
+          SES_EMAIL_BCC_ADDRESS: !Ref SESBCCEmail
+
       Events:
        QueueIngestion:
           Type: SQS
@@ -208,7 +232,8 @@ Resources:
       MemorySize: 512
       Environment:
         Variables:
-          PARAM1: VALUE
+          SES_EMAIL_SENDER_EMAIL_ADDRESS: !Ref SESEmailSender
+          SES_EMAIL_BCC_ADDRESS: !Ref SESBCCEmail
       Events:
         Stream:
           Type: DynamoDB
@@ -240,11 +265,11 @@ Resources:
     Properties:
       HostedZoneId: "Z05093165SS7MHO0JP43"
       RecordSets:
-        - Name: "blog.api.k6sandeep.com."
+        - Name: !Sub "${ApiDomainName}."
           Type: A
           AliasTarget:
             DNSName: !GetAtt AllBlogApiDomain.RegionalDomainName # Assuming you use Regional Domain Name
-            HostedZoneId: Z1UJRXOUMOOFQ8
+            HostedZoneId: !Ref ApiGatewayRegionalHostedZoneId
 ##            DNSName: !GetAtt [ FrontEndAppDistribution, DomainName ]
 
 Outputs:
