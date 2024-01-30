@@ -76,9 +76,11 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
                 .withBody("No such item found")
                 .withStatusCode(500)
 
+        val email = item["email"]?.s()
+
         val updateRequest = UpdateItemRequest.builder()
             .tableName("Subscriptions")
-            .key(mapOf("identifier" to AttributeValue.builder().s(identifier).build()))
+            .key(mapOf("email" to AttributeValue.builder().s(email).build()))
             .updateExpression("SET verified = :v")
             .expressionAttributeValues(mapOf(":v" to AttributeValue.builder().bool(true).build()))
             .returnValues("ALL_NEW")
