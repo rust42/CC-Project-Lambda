@@ -39,17 +39,13 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
             return handleSubscriptionsRequest(event, context)
 
         } catch (ex: Exception) {
-            return APIGatewayProxyResponseEvent().addBody(ApiResponse.notFound404(ex.message?: "Invalid request"))
+            ex.printStackTrace()
         }
+        return APIGatewayProxyResponseEvent().addBody(ApiResponse.notFound404("Could not parse the request"))
     }
 
     private fun handleVerificationRequest(event: APIGatewayProxyRequestEvent?, context: Context?): APIGatewayProxyResponseEvent {
-        val body = event?.body
-        val response = APIGatewayProxyResponseEvent().addCorsHeaders()
-
-        if (body == null) {
-            throw Exception("Invalid body received")
-        }
+        val body = event?.body ?: throw Exception("Invalid body received")
 
         val request = mapper.readValue<SubscriptionVerificationBody>(body)
         return verify(request.identifier, context)
@@ -78,9 +74,7 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
             ).build()
         val queryResult = dynamoDb.query(queryRequest)
         val item = queryResult.items().first()
-            ?: return APIGatewayProxyResponseEvent().addCorsHeaders()
-                .withBody("No such item found")
-                .withStatusCode(500)
+            ?: return APIGatewayProxyResponseEvent().addBody(ApiResponse.notFound404("No such item found"))
 
         val email = item["email"]?.s()
 
