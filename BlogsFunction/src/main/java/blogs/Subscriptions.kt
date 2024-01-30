@@ -104,7 +104,6 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
             .build()
 
         dynamoDb.putItem(putItemRequest)
-        dynamoDb.close()
         sendSQSMessage(email, identifier)
     }
 
