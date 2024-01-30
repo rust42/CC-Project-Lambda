@@ -19,16 +19,17 @@ class Contact: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyRespon
     private val mapper = ObjectMapper().registerKotlinModule()
     private val dynamoDb = DynamoDbClient.builder().region(Region.US_EAST_1).build()
     override fun handleRequest(event: APIGatewayProxyRequestEvent?, context: Context?): APIGatewayProxyResponseEvent {
-        val response = APIGatewayProxyResponseEvent().addCorsHeaders()
-
-        event?.body?.let {
-            val contact = mapper.readValue<ContactRequest>(it)
-            val attributes = createAttributes(contact)
-            store(attributes)
-            return response.withBody("Successfully submitted request")
-                    .withStatusCode(200)
+        try {
+            event?.body?.let {
+                val contact = mapper.readValue<ContactRequest>(it)
+                val attributes = createAttributes(contact)
+                store(attributes)
+                return APIGatewayProxyResponseEvent().addBody(ApiResponse.successful("Successfully added contact request"))
+            }
+        } catch (ex: Exception) {
+            return APIGatewayProxyResponseEvent().addBody(ApiResponse.notFound404(ex.message?: "Invalid request"))
         }
-        return response.withStatusCode(500).withBody("Invalid request")
+        return APIGatewayProxyResponseEvent().addBody(ApiResponse.notFound404("Invalid request body"))
     }
 
     private fun createAttributes(contact: ContactRequest): Map<String, AttributeValue> {

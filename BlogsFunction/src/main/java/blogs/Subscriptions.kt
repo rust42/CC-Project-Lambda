@@ -15,6 +15,7 @@ import software.amazon.awssdk.services.dynamodb.model.QueryRequest
 import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest
 import software.amazon.awssdk.services.sqs.SqsClient
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import java.lang.Exception
 import java.util.*
 
 
@@ -31,10 +32,15 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
 
         context?.logger?.log("Request path: $requestPath")
 
-        if (requestPath == "/subscription/verify") {
-            return handleVerificationRequest(event, context)
+        try {
+            if (requestPath == "/subscription/verify") {
+                return handleVerificationRequest(event, context)
+            }
+            return handleSubscriptionsRequest(event, context)
+
+        } catch (ex: Exception) {
+            return APIGatewayProxyResponseEvent().addBody(ApiResponse.notFound404(ex.message?: "Invalid request"))
         }
-        return handleSubscriptionsRequest(event, context)
     }
 
     private fun handleVerificationRequest(event: APIGatewayProxyRequestEvent?, context: Context?): APIGatewayProxyResponseEvent {
@@ -42,7 +48,7 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
         val response = APIGatewayProxyResponseEvent().addCorsHeaders()
 
         if (body == null) {
-            return response.withStatusCode(500)
+            throw Exception("Invalid body received")
         }
 
         val request = mapper.readValue<SubscriptionVerificationBody>(body)
@@ -51,15 +57,15 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
 
     private fun handleSubscriptionsRequest(event: APIGatewayProxyRequestEvent?, context: Context?): APIGatewayProxyResponseEvent {
         val body = event?.body
-        val response = APIGatewayProxyResponseEvent().addCorsHeaders()
+        val response = APIGatewayProxyResponseEvent()
 
         if (body == null) {
-            return response.withStatusCode(500)
+            throw Exception("Invalid body received")
         }
 
         val request = mapper.readValue<SubscriptionsRequest>(body)
         store(request.email)
-        return response.withBody("Subscriptions added")
+        return response.addBody(ApiResponse.successful("Successfully added to subscription, please verify"))
     }
 
     private fun verify(identifier: String, context: Context?): APIGatewayProxyResponseEvent {
@@ -87,8 +93,8 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
             .build()
         val response = dynamoDb.updateItem(updateRequest)
         context?.logger?.log("Updated items $response")
-        return APIGatewayProxyResponseEvent().addCorsHeaders().withStatusCode(200)
-            .withBody("Successfully updated results")
+        return APIGatewayProxyResponseEvent()
+            .addBody(ApiResponse.successful("Successfully verified"))
     }
 
     private fun store(email: String) {
@@ -104,6 +110,7 @@ class Subscriptions: RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxy
             .build()
 
         dynamoDb.putItem(putItemRequest)
+        dynamoDb.close()
         sendSQSMessage(email, identifier)
     }
 
